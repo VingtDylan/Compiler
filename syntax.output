@@ -1,0 +1,289 @@
+语法
+
+    0 $accept: start $end
+
+    1 start: %empty
+    2      | start expr EOL
+
+    3 expr: term
+    4     | expr ADD term
+    5     | expr SUB term
+
+    6 term: factor
+    7     | term MUL factor
+    8     | term DIV factor
+
+    9 factor: NUM
+   10       | BINNUM
+   11       | OCTNUM
+   12       | HEXNUM
+   13       | EXPFLOAT
+   14       | LP expr RP
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+NUM (258) 9
+BINNUM (259) 10
+OCTNUM (260) 11
+HEXNUM (261) 12
+EXPFLOAT (262) 13
+ADD (263) 4
+SUB (264) 5
+MUL (265) 7
+DIV (266) 8
+LP (267) 14
+RP (268) 14
+EOL (269) 2
+
+
+Nonterminals, with rules where they appear
+
+$accept (15)
+    左： 0
+start (16)
+    左： 1 2, 右： 0 2
+expr (17)
+    左： 3 4 5, 右： 2 4 5 14
+term (18)
+    左： 6 7 8, 右： 3 4 5 7 8
+factor (19)
+    左： 9 10 11 12 13 14, 右： 6 7 8
+
+
+State 0
+
+    0 $accept: . start $end
+
+    $default  reduce using rule 1 (start)
+
+    start  转到状态 1
+
+
+State 1
+
+    0 $accept: start . $end
+    2 start: start . expr EOL
+
+    $end      shift, and go to state 2
+    NUM       shift, and go to state 3
+    BINNUM    shift, and go to state 4
+    OCTNUM    shift, and go to state 5
+    HEXNUM    shift, and go to state 6
+    EXPFLOAT  shift, and go to state 7
+    LP        shift, and go to state 8
+
+    expr    转到状态 9
+    term    转到状态 10
+    factor  转到状态 11
+
+
+State 2
+
+    0 $accept: start $end .
+
+    $default  接受
+
+
+State 3
+
+    9 factor: NUM .
+
+    $default  reduce using rule 9 (factor)
+
+
+State 4
+
+   10 factor: BINNUM .
+
+    $default  reduce using rule 10 (factor)
+
+
+State 5
+
+   11 factor: OCTNUM .
+
+    $default  reduce using rule 11 (factor)
+
+
+State 6
+
+   12 factor: HEXNUM .
+
+    $default  reduce using rule 12 (factor)
+
+
+State 7
+
+   13 factor: EXPFLOAT .
+
+    $default  reduce using rule 13 (factor)
+
+
+State 8
+
+   14 factor: LP . expr RP
+
+    NUM       shift, and go to state 3
+    BINNUM    shift, and go to state 4
+    OCTNUM    shift, and go to state 5
+    HEXNUM    shift, and go to state 6
+    EXPFLOAT  shift, and go to state 7
+    LP        shift, and go to state 8
+
+    expr    转到状态 12
+    term    转到状态 10
+    factor  转到状态 11
+
+
+State 9
+
+    2 start: start expr . EOL
+    4 expr: expr . ADD term
+    5     | expr . SUB term
+
+    ADD  shift, and go to state 13
+    SUB  shift, and go to state 14
+    EOL  shift, and go to state 15
+
+
+State 10
+
+    3 expr: term .
+    7 term: term . MUL factor
+    8     | term . DIV factor
+
+    MUL  shift, and go to state 16
+    DIV  shift, and go to state 17
+
+    $default  reduce using rule 3 (expr)
+
+
+State 11
+
+    6 term: factor .
+
+    $default  reduce using rule 6 (term)
+
+
+State 12
+
+    4 expr: expr . ADD term
+    5     | expr . SUB term
+   14 factor: LP expr . RP
+
+    ADD  shift, and go to state 13
+    SUB  shift, and go to state 14
+    RP   shift, and go to state 18
+
+
+State 13
+
+    4 expr: expr ADD . term
+
+    NUM       shift, and go to state 3
+    BINNUM    shift, and go to state 4
+    OCTNUM    shift, and go to state 5
+    HEXNUM    shift, and go to state 6
+    EXPFLOAT  shift, and go to state 7
+    LP        shift, and go to state 8
+
+    term    转到状态 19
+    factor  转到状态 11
+
+
+State 14
+
+    5 expr: expr SUB . term
+
+    NUM       shift, and go to state 3
+    BINNUM    shift, and go to state 4
+    OCTNUM    shift, and go to state 5
+    HEXNUM    shift, and go to state 6
+    EXPFLOAT  shift, and go to state 7
+    LP        shift, and go to state 8
+
+    term    转到状态 20
+    factor  转到状态 11
+
+
+State 15
+
+    2 start: start expr EOL .
+
+    $default  reduce using rule 2 (start)
+
+
+State 16
+
+    7 term: term MUL . factor
+
+    NUM       shift, and go to state 3
+    BINNUM    shift, and go to state 4
+    OCTNUM    shift, and go to state 5
+    HEXNUM    shift, and go to state 6
+    EXPFLOAT  shift, and go to state 7
+    LP        shift, and go to state 8
+
+    factor  转到状态 21
+
+
+State 17
+
+    8 term: term DIV . factor
+
+    NUM       shift, and go to state 3
+    BINNUM    shift, and go to state 4
+    OCTNUM    shift, and go to state 5
+    HEXNUM    shift, and go to state 6
+    EXPFLOAT  shift, and go to state 7
+    LP        shift, and go to state 8
+
+    factor  转到状态 22
+
+
+State 18
+
+   14 factor: LP expr RP .
+
+    $default  reduce using rule 14 (factor)
+
+
+State 19
+
+    4 expr: expr ADD term .
+    7 term: term . MUL factor
+    8     | term . DIV factor
+
+    MUL  shift, and go to state 16
+    DIV  shift, and go to state 17
+
+    $default  reduce using rule 4 (expr)
+
+
+State 20
+
+    5 expr: expr SUB term .
+    7 term: term . MUL factor
+    8     | term . DIV factor
+
+    MUL  shift, and go to state 16
+    DIV  shift, and go to state 17
+
+    $default  reduce using rule 5 (expr)
+
+
+State 21
+
+    7 term: term MUL factor .
+
+    $default  reduce using rule 7 (term)
+
+
+State 22
+
+    8 term: term DIV factor .
+
+    $default  reduce using rule 8 (term)
