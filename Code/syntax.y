@@ -4,10 +4,15 @@
   #include <stdio.h>
   #include <stdlib.h>
   #include "grammertree.h"
+  #include "lex.yy.c"
   int yyerror(const char *s);
   int yylex();
+  extern void yyrestart(FILE*);
+  extern int yyparse(); 
   extern FILE *yyin;
   extern int yylineno;
+  bool error_exist=false;
+  TreeNode* Root=NULL;
 %}
 
 /* set attribute type for test */
@@ -18,7 +23,8 @@
   int ivalue;
   float fvalue;
   double dvalue;
-  char *string; 
+  char *string;
+  struct Node* treenode; 
 }
 
 %token <string> ID
@@ -63,7 +69,7 @@ ExtDef: Specifier ExtDecList SEMI
 /* | Specifier SEMI EOL EOL*/
  | Specifier FunDec CompSt
 /* | Specifier FunDec CompSt EOL*/
- | error SEMI { yyerrok; }
+ | error SEMI { /*yyerrok;*/ }
 ;
 
 ExtDecList: VarDec
@@ -91,12 +97,12 @@ Tag: ID
 
 VarDec: ID
  | VarDec LB INT RB
- | VarDec LB error RB { yyerrok; }
+ | VarDec LB error RB { /*yyerrok;*/ }
 ;
 
 FunDec: ID LP VarList RP
  | ID LP RP
- | ID error RP { yyerrok; }
+ | error RP { /*yyerrok;*/ }
 ;
 
 VarList: ParamDec COMMA VarList
@@ -104,7 +110,8 @@ VarList: ParamDec COMMA VarList
 ;
 
 ParamDec: Specifier VarDec
- | error RP { yyerrok; }
+ | error COMMA { /*yyerrok;*/ }
+ | error RP { /*yyerrok;*/ }
 ;
 
 /*Statements*/
@@ -123,7 +130,7 @@ Stmt: Exp SEMI
  | RETURN Exp SEMI
  | IF LP Exp RP Stmt %prec LOWER_THAN_ELSE
  | IF LP Exp RP Stmt ELSE Stmt
- | IF LP Exp RP error SEMI ELSE Stmt { yyerrok; } 
+ | IF LP Exp RP error ELSE Stmt { PrintError("Missing \";\" ?\n");  /*yyerrok;*/ } 
  | WHILE LP Exp RP Stmt
 ;
 
@@ -135,7 +142,7 @@ DefList: Def DefList
 
 Def: Specifier DecList SEMI
 /* | Specifier DecList SEMI EOL*/
- | error SEMI;
+ | error SEMI {}
 ;
 
 DecList: Dec
@@ -162,7 +169,7 @@ Exp: Exp ASSIGNOP Exp {}
  | ID LP Args RP {}
  | ID LP RP {}
  | Exp LB Exp RB {}
- | Exp LB error RB { yyerrok; }
+ | Exp LB error RB { PrintError("Missing \"]\" ?\n"); /*yyerrok;*/ }
  | Exp DOT ID {}
  | ID {}
  | INT {}
@@ -212,15 +219,20 @@ int main(int argc,char **argv)
     perror(argv[1]);
     return 1;
   } 
-  printf(">\n");
-  yyin=f;  
+  yylineno=1;
+  //yyin=f;  
+  yyrestart(f);
   yyparse();
+  if(!error_exist)
+    printTree(Root,0);
+  else
+    PrintHint("Solve the errors come first\n");
   return 0;
 }
 
 int yyerror(const char *s)
 {
-  fprintf(stderr, "Error type B at Line %d:%s\n",yylineno,s);
+  fprintf(stderr, NONE"Error type B at Line %d:%s\n",yylineno,s);
   //fprintf(stderr, "error: %s\n", s);
 }
 
