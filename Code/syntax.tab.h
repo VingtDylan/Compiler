@@ -72,8 +72,7 @@ extern int yydebug;
     ELSE = 282,
     WHILE = 283,
     RETURN = 284,
-    EOL = 285,
-    LOWER_THAN_ELSE = 286
+    LOWER_THAN_ELSE = 285
   };
 #endif
 
@@ -86,11 +85,11 @@ union YYSTYPE
 
   int ivalue;
   float fvalue;
-  double dvalue;
-  char *string;
+  //double dvalue;
+  //char *string;
   struct Node* treenode; 
 
-#line 94 "./syntax.tab.h" /* yacc.c:1909  */
+#line 93 "./syntax.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

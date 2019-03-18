@@ -1,4 +1,3 @@
-%option yylineno
 %{
   #include "syntax.tab.h"
   #include "grammertree.h"
@@ -18,6 +17,8 @@
   int atohex(char *s);
 %}
 
+%option yylineno
+
 digit [0-9]
 letter [a-zA-Z]
 bin [01]
@@ -33,8 +34,8 @@ OCTERROR 0[0-9a-wyzA-WYZ][0-9a-zA-Z]*
 HEX 0[xX]{hex}*
 HEXERROR 0[xX][0-9a-zA-Z]*
 
-EXPFLOAT e{digit}*
-COMMONFLOAT {digit}*[.]{digit}+f?
+EXPFLOAT {digit}*[.]{digit}*[eE][+-]{digit}*
+COMMONFLOAT {digit}+[.]{digit}+f?
 FLOAT {EXPFLOAT}|{COMMONFLOAT}
 
 COMMENT \/\*([^*]|(\*[^"/"]))*\*\/[\n]*
@@ -49,50 +50,84 @@ ID [_a-zA-Z][_a-zA-Z0-9]*
 
 %%
 
-; { return SEMI; }
-, { return COMMA; }
-= { return ASSIGNOP; }
->|<|>=|<=|==|!= { return RELOP; }
-"+" { return PLUS; }
-"-" { return MINUS; }
-"*" { return STAR; }
-"/" { return DIV; }
-"&&" { return AND; }
-"||" { return OR; }
-"." { return DOT; }
-"!" { return NOT; }
-"(" { return LP; }
-")" { return RP; }
-"[" { return LB; }
-"]" { return RB; }
-"{" { return LC; }
-"}" { return RC; }
-{TYPE} { return TYPE; }
-{STRUCT} { return STRUCT; }
-{RETURN} { return RETURN; }
-{IF} { return IF; }
-{ELSE} { return ELSE; }
-{WHILE} { return WHILE; }
-{DEC} { yylval.ivalue = atoi(yytext); 
-        yylval.treenode = createNode("DEC",yytext,Node_Data,green);
-        return INT; 
-      }
+; { yylval.treenode = createNode("SEMI",yytext,Node_Sign,blue);
+    return SEMI; }
+, { yylval.treenode = createNode("COMMA",yytext,Node_Sign,blue);
+    return COMMA; }
+= { yylval.treenode = createNode("ASSIGNOP",yytext,Node_Sign,blue);
+    return ASSIGNOP; }
+>|<|>=|<=|==|!= { yylval.treenode = createNode("RELOP",yytext,Node_Sign,blue);
+                  return RELOP; }
+"+" { yylval.treenode = createNode("PLUS",yytext,Node_Op,cyan);
+      return PLUS; }
+"-" { yylval.treenode = createNode("MINUS",yytext,Node_Op,cyan);
+      return MINUS; }
+"*" { yylval.treenode = createNode("STAR",yytext,Node_Op,cyan);
+      return STAR; }
+"/" { yylval.treenode = createNode("DIV",yytext,Node_Op,cyan);
+      return DIV; }
+"&&" { yylval.treenode = createNode("AND",yytext,Node_Logic,yellow);
+       return AND; }
+"||" { yylval.treenode = createNode("OR",yytext,Node_Logic,yellow);
+       return OR; }
+"." { yylval.treenode = createNode("DOT",yytext,Node_Fun,l_cyan);
+      return DOT; }
+"!" { yylval.treenode = createNode("NOT",yytext,Node_Fun,l_cyan);
+      return NOT; }
+"(" { yylval.treenode = createNode("LP",yytext,Node_Fun,l_cyan);
+      return LP; }
+")" { yylval.treenode = createNode("RP",yytext,Node_Fun,l_cyan);
+      return RP; }
+"[" { yylval.treenode = createNode("LB",yytext,Node_Fun,l_cyan);
+      return LB; }
+"]" { yylval.treenode = createNode("RB",yytext,Node_Fun,l_cyan);
+      return RB; }
+"{" { yylval.treenode = createNode("LC",yytext,Node_Fun,l_cyan);
+      return LC; }
+"}" { yylval.treenode = createNode("RC",yytext,Node_Fun,l_cyan);
+      return RC; }
+{TYPE} { yylval.treenode = createNode("TYPE",yytext,Node_ID,l_purple);
+         return TYPE; }
+{STRUCT} { yylval.treenode = createNode("STRUCT",yytext,Node_ID,l_purple); 
+           return STRUCT; }
+{RETURN} { yylval.treenode = createNode("RETURN",yytext,Node_ID,l_purple);
+           return RETURN; }
+{IF} { yylval.treenode = createNode("IF",yytext,Node_ID,l_purple);
+       return IF; }
+{ELSE} { yylval.treenode = createNode("ELSE",yytext,Node_ID,l_purple);
+         return ELSE; }
+{WHILE} { yylval.treenode = createNode("WHILE",yytext,Node_ID,l_purple);
+          return WHILE; }
+{DEC} { /*yylval.ivalue = atoi(yytext);*/
+        yylval.treenode = createNode("INT",yytext,Node_Data,green);
+        return INT; }
 {BIN} { yylval.ivalue = atobin(yytext); 
-        yylval.treenode = createNode("BIN",yytext,Node_Data,green);
+        snprintf(yytext, 10,"%d",atobin(yytext));
+        yylval.treenode = createNode("INT",yytext,Node_Data,green);
         return INT; }
-{BINERROR} { fprintf(stderr,"Error type A at Line %d: check the bin number \"%s\" !\n",yylineno,yytext); error_exist=true; return INT; }
-{OCT1} { yylval.ivalue = atooct(yytext,1); 
-         yylval.treenode = createNode("OCT",yytext,Node_Data,green);
+{BINERROR} { fprintf(stderr,"Error type A at Line %d: check the bin number \"%s\" !\n",yylineno,yytext); 
+             error_exist=true;
+             return INT; }
+{OCT1} { /*yylval.ivalue = atooct(yytext,1);*/ 
+         snprintf(yytext, 10,"%d",atooct(yytext,1));
+         yylval.treenode = createNode("INT",yytext,Node_Data,green);
          return INT; }
-{OCT2} { yylval.ivalue = atooct(yytext,2);
-         yylval.treenode = createNode("OCT",yytext,Node_Data,green);
+{OCT2} { /*yylval.ivalue = atooct(yytext,2);*/
+         snprintf(yytext, 10,"%d",atooct(yytext,2));
+         yylval.treenode = createNode("INT",yytext,Node_Data,green);
          return INT; }
-{OCTERROR} { fprintf(stderr,"Error type A at Line %d: check the oct number \"%s\" !\n",yylineno,yytext); error_exist=true; return INT; }
-{HEX} { yylval.ivalue = atohex(yytext); 
-        yylval.treenode = createNode("HEX",yytext,Node_Data,green);
+{OCTERROR} { fprintf(stderr,"Error type A at Line %d: check the oct number \"%s\" !\n",yylineno,yytext);
+             error_exist=true;
+             return INT; }
+{HEX} { /*yylval.ivalue = atohex(yytext);*/
+        snprintf(yytext, 10,"%d",atohex(yytext));
+        yylval.treenode = createNode("INT",yytext,Node_Data,green);
         return INT; }
-{HEXERROR} { fprintf(stderr,"Error type A at Line %d: check the hex number \"%s\" !\n",yylineno,yytext); error_exist=true; return INT; }
-{EXPFLOAT} { yylval.dvalue = atof("0.001"); 
+{HEXERROR} { fprintf(stderr,"Error type A at Line %d: check the hex number \"%s\" !\n",yylineno,yytext); 
+             error_exist=true; 
+             return INT; }
+{EXPFLOAT} { /*yylval.dvalue = atof("0.001");*/
+             snprintf(yytext, 10,"%f",atof(yytext));
              yylval.treenode = createNode("EXPFLOAT",yytext,Node_Data,green);
              return FLOAT; }
 {COMMONFLOAT} { yylval.fvalue = atof(yytext);
@@ -101,8 +136,11 @@ ID [_a-zA-Z][_a-zA-Z0-9]*
 [\n]+      { yycolumn=1; /*return EOL;*/ }
 [ \t\r]+   { /* ignore white space */ }
 {COMMENT} { PrintHint("Here is a comment!\n"); }
-{ID} { /*printf("this is a ID \"%s\"\n",yytext);*/ return ID; }
-.   { lexerror(yytext); }
+{ID} { /*printf("this is a ID \"%s\"\n",yytext);*/ 
+       yylval.treenode =createNode("ID",yytext,Node_ID,l_purple);
+       return ID; }
+.   { error_exist=true;
+      lexerror(yytext); }
 
 %%
 
