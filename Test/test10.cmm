@@ -1,8 +1,8 @@
-int main(){
+/*int main(){
   float i = 1.05e;
-}
-/*
+}*/
+
 int main(){
-  float i = 1.05e1;
+  float i = 1.05e+1;
 }
-*/
+
