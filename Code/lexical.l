@@ -34,11 +34,13 @@ OCTERROR 0[0-9a-wyzA-WYZ][0-9a-zA-Z]*
 HEX 0[xX]{hex}*
 HEXERROR 0[xX][0-9a-zA-Z]*
 
-EXPFLOAT {digit}*[.]{digit}*[eE][+-]{digit}*
+EXPFLOAT {digit}*[.]{digit}*[eE][+-]?{digit}+
+EXPERROR ([.]?[eE]{digit}*)|({digit}*[.]{digit}*[eE][+-]?)
 COMMONFLOAT {digit}+[.]{digit}+f?
 FLOAT {EXPFLOAT}|{COMMONFLOAT}
 
-COMMENT \/\*([^*]|(\*[^"/"]))*\*\/[\n]*
+COMERROR \/\*([^\/^\*]*|(\/[^\*])|(\*[^\/]))*\/\*
+COMMENT (\/\*([^\*\/]*|(\*[^\/])|(\/[^\*]))*\*\/)|(\/\/[^\n]*[\n])
 
 TYPE int|float|double
 STRUCT struct
@@ -117,25 +119,33 @@ ID [_a-zA-Z][_a-zA-Z0-9]*
          yylval.treenode = createNode("INT",yytext,Node_Data,green);
          return INT; }
 {OCTERROR} { fprintf(stderr,"Error type A at Line %d: check the oct number \"%s\" !\n",yylineno,yytext);
-             error_exist=true;
+             error_exist = true;
              return INT; }
 {HEX} { /*yylval.ivalue = atohex(yytext);*/
         snprintf(yytext, 10,"%d",atohex(yytext));
         yylval.treenode = createNode("INT",yytext,Node_Data,green);
         return INT; }
 {HEXERROR} { fprintf(stderr,"Error type A at Line %d: check the hex number \"%s\" !\n",yylineno,yytext); 
-             error_exist=true; 
+             error_exist = true; 
              return INT; }
 {EXPFLOAT} { /*yylval.dvalue = atof("0.001");*/
-             snprintf(yytext, 10,"%f",atof(yytext));
-             yylval.treenode = createNode("EXPFLOAT",yytext,Node_Data,green);
+             //snprintf(yytext, 10,"%f",atof(yytext));
+             yylval.treenode = createNode("FLOAT",yytext,Node_Data,green);
+             /*yylval.treenode = createNode("EXPFLOAT",yytext,Node_Data,green);*/
              return FLOAT; }
-{COMMONFLOAT} { yylval.fvalue = atof(yytext);
-                yylval.treenode = createNode("COMMONFLOAT",yytext,Node_Data,green);
+{EXPERROR} { fprintf(stderr,"Error Type A at Line %d: check the float number \"%s\" !\n",yylineno,yytext);
+             error_exist = true;
+             return FLOAT;  }
+{COMMONFLOAT} { /*yylval.fvalue = atof(yytext);*/
+                yylval.treenode = createNode("FLOAT",yytext,Node_Data,green);     
+                /*yylval.treenode = createNode("COMMONFLOAT",yytext,Node_Data,green);*/
                 return FLOAT; }
 [\n]+      { yycolumn=1; /*return EOL;*/ }
 [ \t\r]+   { /* ignore white space */ }
-{COMMENT} { PrintHint("Here is a comment!\n"); }
+{COMMENT} { PrintHint("Here is a comment!");
+            printf("at Line %d!\n",yylineno); }
+{COMERROR} { fprintf(stderr,"Error Type B at line %d: nested comment error!\n",yylineno);
+             error_exist = true; }
 {ID} { /*printf("this is a ID \"%s\"\n",yytext);*/ 
        yylval.treenode =createNode("ID",yytext,Node_ID,l_purple);
        return ID; }

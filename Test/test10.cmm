@@ -1,0 +1,8 @@
+int main(){
+  float i = 1.05e;
+}
+/*
+int main(){
+  float i = 1.05e1;
+}
+*/

@@ -99,7 +99,7 @@ ExtDef     : Specifier ExtDecList SEMI {
                addChild($$,$3,3); 
              }
         /* | Specifier FunDec CompSt EOL*/
-           | error SEMI { /*yyerrok;*/ }
+           | error SEMI { error_exist = true;/*yyerrok;*/ }
 ;
 
 ExtDecList : VarDec { 
@@ -167,7 +167,7 @@ VarDec     : ID {
                addChild($$,$3,3); 
                addChild($$,$4,4); 
              }
-           | VarDec LB error RB { /*yyerrok;*/ }
+           | VarDec LB error RB { error_exist = true; /*yyerrok;*/ }
 ;
 
 FunDec     : ID LP VarList RP { 
@@ -183,7 +183,7 @@ FunDec     : ID LP VarList RP {
                addChild($$,$2,2); 
                addChild($$,$3,3); 
              }
-           | error RP { /*yyerrok;*/ }
+           | error RP { error_exist = true; /*yyerrok;*/ }
 ;
 
 VarList    : ParamDec COMMA VarList { 
@@ -202,7 +202,7 @@ ParamDec   : Specifier VarDec {
                $$ = createNode("ParamDec"," ",Node_Program,d_gray);
                addChild($$,$1,1);
                addChild($$,$2,2); }
-           | error COMMA { /*yyerrok;*/ }
+           | error COMMA { error_exist = true;/*yyerrok;*/ }
            | error RP { /*yyerrok;*/ }
 ;
 
@@ -216,7 +216,7 @@ CompSt     : LC DefList StmtList RC {
              addChild($$,$4,4); 
              }
          /*| LC EOL DefList StmtList RC*/
-           | LC error RC { }
+           | LC error RC { error_exist = true; }
 ;
 
 StmtList   : Stmt StmtList { 
@@ -262,6 +262,7 @@ Stmt       : Exp SEMI {
              }
            | IF LP Exp RP error ELSE Stmt { 
                PrintError("Missing \";\" ?\n");  
+               error_exist = true;
                /*yyerrok;*/ 
              } 
            | WHILE LP Exp RP Stmt { 
@@ -406,6 +407,7 @@ Exp       : Exp ASSIGNOP Exp {
             }
           | Exp LB error RB { 
               PrintError("Missing \"]\" ?\n");
+              error_exist = true;
               /*yyerrok;*/ 
             }
           | Exp DOT ID { 
