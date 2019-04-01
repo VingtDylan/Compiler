@@ -1,10 +1,3 @@
-#.PHONY: run
-#run:
-#	bison -d -v syntax.y
-#	flex lexical.l
-#	gcc -o parser grammertree.c syntax.tab.c lex.yy.c -lfl -ly
-#	./parser test.c 
-
 # 编译器设定和编i译选项
 CC = gcc
 FLEX = flex
@@ -21,6 +14,13 @@ YFC = $(shell find ./ -name "*.y" | sed s/[^/]*\\.y/syntax.tab.c/)
 LFO = $(LFC:.c=.o)
 YFO = $(YFC:.c=.o)
 
+CMM_SOURCES := $(wildcard ../Test/*.cmm)
+C_SOURCES := $(wildcard ../Test/*.c)
+NUM_OF_CMM := $(words $(CMM_SOURCES))
+NUM_OF_C := $(words $(C_SOURCES))
+INDEX_CMM := $(shell seq 1 $(NUM_OF_CMM))
+INDEX_C := $(shell seq 1 $(NUM_OF_C))
+
 parser: syntax $(filter-out $(LFO),$(OBJS))
 	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly
 
@@ -36,9 +36,25 @@ syntax-c: $(YFILE)
 -include $(patsubst %.o, %.d, $(OBJS))
 
 # 定义的一些伪目标
-.PHONY: clean test
+.PHONY: clean test CMM C all
 test:
-	./parser ../Test/test10.cmm
+	./parser ../Test/test2.cmm
+
+CMM:  
+	for n in $(INDEX_CMM);\
+	do	./parser ../Test/test$$n.cmm;\
+	done
+
+C:
+	for n in $(INDEX_C);\
+	do	./parser ../Test/test$$n.c;\
+	done
+
+all: 	
+	for case in $(shell find ../Test/*);\
+		do	./parser $$case;\
+		done
+
 clean:
 	rm -f parser lex.yy.c syntax.tab.c syntax.tab.h syntax.output
 	rm -f $(OBJS) $(OBJS:.o=.d)
