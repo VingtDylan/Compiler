@@ -38,7 +38,7 @@ syntax-c: $(YFILE)
 # 定义的一些伪目标
 .PHONY: clean test CMM C all
 test:
-	./parser ../Test/test2.cmm
+	./parser ../Test/test3.cmm
 
 CMM:  
 	for n in $(INDEX_CMM);\

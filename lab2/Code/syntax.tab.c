@@ -2387,7 +2387,7 @@ int main(int argc,char **argv)
     //printTree(Root,0);
     initHashTable();
     traverse(Root);
-    debugShowSymbol();
+    //debugShowSymbol();
   }
   else
     PrintHint("Solve the errors come first\n");
