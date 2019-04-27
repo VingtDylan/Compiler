@@ -27,6 +27,7 @@ typedef enum { false,true } bool;
 typedef enum { Node_ID,Node_Data,Node_Sign,Node_Op,Node_Logic,Node_Fun,Node_Program } Node_Type;
 typedef enum { green,blue,cyan,yellow,l_cyan,l_purple,d_gray }Node_Color;
 typedef enum { INT_TYPE, FLOAT_TYPE, DOUBLE_TYPE} DATA;
+typedef enum { BASIC, ARRAY, STRUCTURE, FUNCTION} Kind;
 typedef enum { wander,extra,arranged} Hashflag;
 
 typedef struct Type_* Type;
@@ -44,7 +45,7 @@ typedef struct Node{
 }TreeNode;
 
 typedef struct Type_ {
-  enum { BASIC, ARRAY, STRUCTURE, FUNCTION } kind;
+  Kind kind;
   union {
     int basic;
     struct {
@@ -56,6 +57,7 @@ typedef struct Type_ {
       int paranum;
       FieldList parameters;
       Type funcType;
+      //int paranum;
     }function;
   }u;
 }Type_;

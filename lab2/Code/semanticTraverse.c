@@ -9,7 +9,7 @@ void traverseExtDefList(TreeNode *root){
   /*ExtDef ExtDefList*/
   while(ExtDefList->child_num!=0){
     TreeNode *ExtDef=ExtDefList->child[0];
-    Type symbolType=Specifier(ExtDef->child[0]);
+    Type symbolType=Specifier(ExtDef->child[0]); 
     /*Specifier FunDec CompSt*/
     if(strcmp(ExtDef->child[1]->name,"FunDec")==0){
       /*ID LP VarList=NULL RP*/
@@ -24,10 +24,10 @@ void traverseExtDefList(TreeNode *root){
       if(strcmp(ExtDef->child[1]->child[2]->name,"VarList")==0){
         TreeNode *VarListRoot=ExtDef->child[1]->child[2];
         /*ParamDec COMMA VarList*/
-        while(VarListRoot->child_num>1){
+        while(VarListRoot->child_num!=1){
           Type varType=Specifier(VarListRoot->child[0]->child[0]);
           FieldList VarDecField=VarDec(VarListRoot->child[0]->child[1],varType); 
-          if(indexSymbol(VarDecField->name,0)!=NULL)
+          if(indexSymbol(VarDecField->name,false)!=NULL)
             printf(CYAN"Error type 3 at Line %d: Redefined variable \"%s\".\n"NONE,ExtDef->lineno,VarDecField->name);
           else
             insertSymbol(VarDecField);
@@ -39,7 +39,7 @@ void traverseExtDefList(TreeNode *root){
         /*ParamDec*/
         Type varType=Specifier(VarListRoot->child[0]->child[0]);
         FieldList VarDecField=VarDec(VarListRoot->child[0]->child[1],varType); 
-        if(indexSymbol(VarDecField->name,0)!=NULL)
+        if(indexSymbol(VarDecField->name,false)!=NULL)
           printf(CYAN"Error type 3 at Line %d: Redefined variable \"%s\".\n"NONE,ExtDef->lineno,VarDecField->name);
         else
           insertSymbol(VarDecField);
@@ -48,11 +48,18 @@ void traverseExtDefList(TreeNode *root){
         funcType->u.function.parameters=VarDecField;
       }
       field->type=funcType;
+      //printf(RED"sname-%s kind-%d\n"NONE,field->name,field->type->kind);
+      //printf("params%d\n",field->type->u.function.paranum++);
       if(indexSymbol(field->name,true)!=NULL)
         printf(CYAN"Error type 4 at Line %d: Redefined function \"%s\" .\n"NONE,ExtDef->lineno,field->name);
-      else
-        insertSymbol(field);
+      else{
+        //printf(GREEN"sssname-%s kind-%d\n"NONE,field->name,field->type->kind);
+        //Bug !!!!!!!
+        insertSymbol(field);      
+        //printf(GREEN"ssname-%s kind-%d\n"NONE,field->name,field->type->kind);
+      }
       /*CompSt todo*/
+      //debugShowSymbol();
       traverseCompSt(ExtDef->child[2],symbolType);
     }
     /*Specifier ExtDecList SEMI*/
@@ -134,6 +141,7 @@ void traverseStmt(TreeNode *root,Type funcType){
   TreeNode *Stmt=root;
   if(strcmp(Stmt->child[0]->name,"Exp")==0){
     /*Exp SEMI*/
+    //printf("%d\n",Stmt->child[0]->child_num);
     Exp(Stmt->child[0]);
   }else if(strcmp(Stmt->child[0]->name,"CompSt")==0){
     /*CompSt*/

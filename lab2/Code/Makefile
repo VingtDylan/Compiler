@@ -38,11 +38,13 @@ syntax-c: $(YFILE)
 # 定义的一些伪目标
 .PHONY: clean test CMM C all
 test:
-	./parser ../Test/test3.cmm
+	./parser ../Test/test9.cmm
 
 CMM:  
 	for n in $(INDEX_CMM);\
-	do	./parser ../Test/test$$n.cmm;\
+	do\
+		echo "Output of test$$n.cmm";\
+		./parser ../Test/test$$n.cmm;\
 	done
 
 C:

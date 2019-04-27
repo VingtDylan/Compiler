@@ -1,6 +1,7 @@
 #include "grammertree.h"
 #include "semantic.h"
 #include "semanticTraverse.h"
+#include "string.h"
 
 extern FieldList hashTable[MAX_HASH_SIZE];
 
@@ -21,13 +22,16 @@ void initHashTable(){
 }
  
 int insertSymbol(FieldList symbol){
+  //printf(GREEN"debug->name-%s kind-%d\n"NONE,symbol->name,symbol->type->kind);
   if(symbol==NULL||symbol->name==NULL)
     return 0;
   unsigned int hashkey;
-  symbol->hashflag.flag =wander;
-  symbol->hashflag.hashed = 0;
-  if(symbol->type->kind==FUNCTION)
+  //symbol->hashflag.flag =wander;
+  //symbol->hashflag.hashed = 0;
+  if(symbol->type->kind==FUNCTION){
+    //printf(GREEN"debug->name-%s kind-%d\n"NONE,symbol->name,symbol->type->kind);
     hashkey=hash_pjw(1+symbol->name);
+  }
   else
     hashkey=hash_pjw(symbol->name);
   if(hashTable[hashkey]==NULL){
@@ -37,14 +41,14 @@ int insertSymbol(FieldList symbol){
   }
   while(1){
     hashkey=(++hashkey)%MAX_HASH_SIZE;
-    symbol->hashflag.hashed+=1;
+    //symbol->hashflag.hashed+=1;
     if(hashTable[hashkey]==NULL){
-      symbol->hashflag.flag=arranged;
+      //symbol->hashflag.flag=arranged;
       hashTable[hashkey]=symbol;
       return 1;
     }
     if(symbol->hashflag.hashed>MAX_HASH_SIZE){
-      symbol->hashflag.flag=extra;
+      //symbol->hashflag.flag=extra;
       PrintSymbol("The hashtable is full!\n");
     }
   }
@@ -54,7 +58,7 @@ int insertSymbol(FieldList symbol){
 void debugShowSymbol(){
   for(int i=0;i<MAX_HASH_SIZE;i++)
     if(hashTable[i]!=NULL)
-      printf(CYAN"hashTableid%d: SymbolName:%s Kind:%d\n"NONE,i,hashTable[i]->name,hashTable[i]->type->kind);
+      printf(CYAN"hashTable->id:%d: SymbolName:%s Kind:%d\n"NONE,i,hashTable[i]->name,hashTable[i]->type->kind);
 }
 
 FieldList indexSymbol(char *name,bool isFunc){
@@ -67,11 +71,15 @@ FieldList indexSymbol(char *name,bool isFunc){
      hashkey=hash_pjw(name);
   FieldList tmpSymbol=hashTable[hashkey];
   while(tmpSymbol!=NULL){
-    if(tmpSymbol->hashflag.flag==arranged&&strcmp(tmpSymbol->name,name)==0){
-      if(isFunc&&(tmpSymbol->type->kind==FUNCTION))
+    if(/*tmpSymbol->hashflag.flag==arranged&&*/strcmp(tmpSymbol->name,name)==0){
+      if(isFunc&&(tmpSymbol->type->kind==FUNCTION)){
+         //printf(RED"check1:%d\n"NONE,tmpSymbol->type->kind);
          return tmpSymbol;
-      if(!isFunc&&(tmpSymbol->type->kind!=FUNCTION))
+      }
+      if(!isFunc&&(tmpSymbol->type->kind!=FUNCTION)){
+         //printf(RED"check2:%d\n"NONE,tmpSymbol->type->kind);
          return tmpSymbol;
+      }
     } 
     hashkey=(++hashkey)%MAX_HASH_SIZE;
     tmpSymbol=hashTable[hashkey];  
@@ -280,6 +288,7 @@ FieldList VarDec(TreeNode *root,Type basictype){
 }
 
 Type Exp(TreeNode* root){
+  /*printTree(root,0);*/
   if(root==NULL)
     return NULL;
   else if((strcmp(root->child[0]->name,"ID")==0)&&(root->child_num==1)){
@@ -334,16 +343,17 @@ Type Exp(TreeNode* root){
         printf(CYAN"Error type 6 at Line %d: The left-hand side of an assignment must be a variable.\n"NONE,root->lineno);
         return NULL;
       }
-    }
-  }else if(root->child[0]->child_num==3){
-    if(!((strcmp(root->child[0]->child[0]->name,"Exp")==0)&&(strcmp(root->child[0]->child[1]->name,"DOT")==0)&&(strcmp(root->child[0]->child[2]->name,"ID")==0))){
-      printf(CYAN"Error type 6 at Line %d: The left-hand side of an assignment must be a variable.\n"NONE,root->lineno);
+    }else if(root->child[0]->child_num==3){
+    // Bug !!!!!!!!
+      if(!((strcmp(root->child[0]->child[0]->name,"Exp")==0)&&(strcmp(root->child[0]->child[1]->name,"DOT")==0)&&(strcmp(root->child[0]->child[2]->name,"ID")==0))){
+      	printf(CYAN"Error type 6 at Line %d: The left-hand side of an assignment must be a variable.\n"NONE,root->lineno);
       return NULL;
-    }
-  }else if(root->child[0]->child_num==4){
-    if(!((strcmp(root->child[0]->child[0]->name,"Exp")==0)&&(strcmp(root->child[0]->child[1]->name,"LB")==0)&&(strcmp(root->child[0]->child[2]->name,"Exp")==0)&&(strcmp(root->child[0]->child[3]->name,"RB")==0))){
-      printf(CYAN"Error type 6 at Line %d: The left-hand side of an assignment must be a variable.\n"NONE,root->lineno);
+      }
+    }else if(root->child[0]->child_num==4){
+      if(!((strcmp(root->child[0]->child[0]->name,"Exp")==0)&&(strcmp(root->child[0]->child[1]->name,"LB")==0)&&(strcmp(root->child[0]->child[2]->name,"Exp")==0)&&(strcmp(root->child[0]->child[3]->name,"RB")==0))){
+        printf(CYAN"Error type 6 at Line %d: The left-hand side of an assignment must be a variable.\n"NONE,root->lineno);
       return NULL;
+      }
     }
     Type type1=Exp(root->child[0]);
     Type type2=Exp(root->child[2]);
@@ -370,9 +380,21 @@ Type Exp(TreeNode* root){
     type->kind=FUNCTION;
     type->u.function.paranum=0;
     type->u.function.parameters=NULL;
+    char string_func[80]="\0";
+    char make_func[80]="\0";
+    FieldList param=(FieldList)malloc(sizeof(FieldList));
+    param=definedType->u.function.parameters;
+    for(int i=0;i<definedType->u.function.paranum;i++){
+      if(i==definedType->u.function.paranum-1)
+        strcat(make_func,param->type->u.basic==FLOAT_TYPE?"float":"int");
+      else
+        strcat(make_func,param->type->u.basic==FLOAT_TYPE?"float,":"int,");
+      param=param->type->u.function.parameters;
+    }
     if(strcmp(root->child[2]->name,"RP")!=0){
       /*ID LP Args RP*/
       TreeNode* args=root->child[2];
+      //printTree(root->child[2],0);
       while(args->child_num!=1){
         /*Exp COMMA Args*/
         Type expType=Exp(args->child[0]);
@@ -382,7 +404,8 @@ Type Exp(TreeNode* root){
         type->u.function.paranum++;
         argsField->tail=type->u.function.parameters;
         type->u.function.parameters=argsField;
-        args=args->child[2];
+        strcat(string_func,expType->u.basic==FLOAT_TYPE?"float,":"int,");
+	args=args->child[2];
       }
       /*Exp*/
       Type expType=Exp(args->child[0]);
@@ -392,9 +415,10 @@ Type Exp(TreeNode* root){
       type->u.function.paranum++;
       argsField->tail=type->u.function.parameters;
       type->u.function.parameters=argsField;
+      strcat(string_func,expType->u.basic==FLOAT_TYPE?"float":"int");
     }
     if(TypeEqual(type,definedType)==0){
-      printf(CYAN"Error type 9 at Line %d: Params wrong in function \"%s\".\n"NONE,root->lineno,root->child[0]->value);
+      printf(CYAN"Error type 9 at Line %d: Functions \"%s(%s)\" is not applicable for arguments \"(%s).\"\n"NONE,root->lineno,root->child[0]->value,make_func,string_func);
       return NULL;
     }else 
       return definedType->u.function.funcType;
@@ -423,7 +447,7 @@ Type Exp(TreeNode* root){
           break;
         default:
           s="error";
-break;
+          break;
       }
       if(indexSymbol(s,0)!=NULL)
         printf(CYAN"Error type 13 at Line %d: Illegal use of \".\".\n"NONE,root->lineno);
@@ -471,12 +495,12 @@ break;
     }
     Type exp2=Exp(root->child[2]);
     if(exp2->kind!=BASIC){
-      printf(CYAN"Error type 12 at Line %d: there is not a integer between \"[\" and \"]\".\n"NONE,root->lineno);
-        return NULL;
+      printf(CYAN"Error type 12 at Line %d: \"%s\" is not a integer\n"NONE,root->lineno,root->child[2]->child[0]->value);
+      return NULL;
     }
     else if(exp2->u.basic==FLOAT_TYPE){
-      printf(CYAN"Error type 12 at Line %d: there is not a integer between \"[\" and \"]\".\n"NONE,root->lineno);
-        return NULL;
+      printf(CYAN"Error type 12 at Line %d: \"%s\" is not a integer\n"NONE,root->lineno,root->child[2]->child[0]->value);
+      return NULL;
     }
     return exp->u.array.elem;
   }else{
