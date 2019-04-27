@@ -15,6 +15,7 @@ void traverseExtDefList(TreeNode *root){
       /*ID LP VarList=NULL RP*/
       FieldList field=(FieldList)malloc(sizeof(FieldList));
       field->name=ExtDef->child[1]->child[0]->value;
+      field->lineno=ExtDef->child[1]->child[0]->lineno;
       Type funcType=(Type)malloc(sizeof(Type));
       funcType->kind=FUNCTION;
       funcType->u.function.funcType=symbolType;
@@ -26,32 +27,44 @@ void traverseExtDefList(TreeNode *root){
         /*ParamDec COMMA VarList*/
         while(VarListRoot->child_num!=1){
           Type varType=Specifier(VarListRoot->child[0]->child[0]);
-          FieldList VarDecField=VarDec(VarListRoot->child[0]->child[1],varType); 
-          if(indexSymbol(VarDecField->name,false)!=NULL)
+          FieldList VarDecField=VarDec(VarListRoot->child[0]->child[1],varType);
+          VarDecField->defined=unuseparam; 
+          if(indexSymbol(VarDecField->name,false)!=NULL&&indexSymbol(VarDecField->name,false)->defined!=unuseparam)
             printf(CYAN"Error type 3 at Line %d: Redefined variable \"%s\".\n"NONE,ExtDef->lineno,VarDecField->name);
           else
             insertSymbol(VarDecField);
           funcType->u.function.paranum++;
           VarDecField->tail=funcType->u.function.parameters;
+          VarDecField->defined=unuseparam;
           funcType->u.function.parameters=VarDecField;
           VarListRoot=VarListRoot->child[2];
         }
         /*ParamDec*/
         Type varType=Specifier(VarListRoot->child[0]->child[0]);
         FieldList VarDecField=VarDec(VarListRoot->child[0]->child[1],varType); 
-        if(indexSymbol(VarDecField->name,false)!=NULL)
+        VarDecField->defined=unuseparam;
+        if(indexSymbol(VarDecField->name,false)!=NULL&&indexSymbol(VarDecField->name,false)->defined!=unuseparam)
           printf(CYAN"Error type 3 at Line %d: Redefined variable \"%s\".\n"NONE,ExtDef->lineno,VarDecField->name);
         else
           insertSymbol(VarDecField);
         funcType->u.function.paranum++;
         VarDecField->tail=funcType->u.function.parameters;
+        VarDecField->defined=unuseparam;
         funcType->u.function.parameters=VarDecField;
       }
       field->type=funcType;
+      if(strcmp(ExtDef->child[2]->name,"SEMI")==0)
+        field->defined=undefined;
+      else
+        field->defined=defined;
       //printf(RED"sname-%s kind-%d\n"NONE,field->name,field->type->kind);
       //printf("params%d\n",field->type->u.function.paranum++);
-      if(indexSymbol(field->name,true)!=NULL)
-        printf(CYAN"Error type 4 at Line %d: Redefined function \"%s\" .\n"NONE,ExtDef->lineno,field->name);
+      FieldList indexField=indexSymbol(field->name,true);
+      if(indexField!=NULL){
+        if(indexField->defined==defined&&field->defined==defined)
+          printf(CYAN"Error type 4 at Line %d: Redefined function \"%s\" .\n"NONE,ExtDef->lineno,field->name);
+        else if(indexField->defined==undefined&&field->defined==undefined)           printf(CYAN"Error type 19 at Line %d: Inconsistent declaration of function \"%s\".\n"NONE,ExtDef->lineno,field->name);
+      }
       else{
         //printf(GREEN"sssname-%s kind-%d\n"NONE,field->name,field->type->kind);
         //Bug !!!!!!!

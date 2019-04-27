@@ -100,6 +100,12 @@ ExtDef     : Specifier ExtDecList SEMI {
                addChild($$,$2,2); 
                addChild($$,$3,3); 
              }
+           | Specifier FunDec SEMI {
+               $$ = createNode("ExtDef"," ",Node_Program,d_gray);
+               addChild($$,$1,1);
+               addChild($$,$2,2);
+               addChild($$,$3,3);
+             }
         /* | Specifier FunDec CompSt EOL*/
            | error SEMI { error_exist = true;/*yyerrok;*/ }
 ;
@@ -492,6 +498,7 @@ int main(int argc,char **argv)
     //printTree(Root,0);
     initHashTable();
     traverse(Root);
+    //validateTable();
     //debugShowSymbol();
   }
   else

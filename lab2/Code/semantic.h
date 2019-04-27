@@ -9,6 +9,7 @@
 
 void initHashTable();
 void debugShowSymbol();
+void validateTable();
 int insertSymbol(FieldList f);
 bool TypeEqual(Type type1,Type type2);
 unsigned int hash_pjw(char *name);

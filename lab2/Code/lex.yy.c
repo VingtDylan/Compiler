@@ -1149,8 +1149,8 @@ case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
 #line 145 "./lexical.l"
-{ PrintHint("Here is a comment!");
-            printf("at Line %d!\n",yylineno); }
+{ /*PrintHint("Here is a comment!");
+            printf("at Line %d!\n",yylineno);*/ }
 	YY_BREAK
 case 39:
 /* rule 39 can match eol */

@@ -142,8 +142,8 @@ ID [_a-zA-Z][_a-zA-Z0-9]*
                 return FLOAT; }
 [\n]+      { yycolumn=1; /*return EOL;*/ }
 [ \t\r]+   { /* ignore white space */ }
-{COMMENT} { PrintHint("Here is a comment!");
-            printf("at Line %d!\n",yylineno); }
+{COMMENT} { /*PrintHint("Here is a comment!");
+            printf("at Line %d!\n",yylineno);*/ }
 {COMERROR} { fprintf(stderr,"Error Type B at line %d: nested comment error!\n",yylineno);
              error_exist = true; }
 {ID} { /*printf("this is a ID \"%s\"\n",yytext);*/ 

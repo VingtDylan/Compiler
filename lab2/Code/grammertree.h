@@ -29,6 +29,7 @@ typedef enum { green,blue,cyan,yellow,l_cyan,l_purple,d_gray }Node_Color;
 typedef enum { INT_TYPE, FLOAT_TYPE, DOUBLE_TYPE} DATA;
 typedef enum { BASIC, ARRAY, STRUCTURE, FUNCTION} Kind;
 typedef enum { wander,extra,arranged} Hashflag;
+typedef enum { undefined,unuseparam,defined} Nbool;
 
 typedef struct Type_* Type;
 typedef struct FieldList_* FieldList;
@@ -54,10 +55,9 @@ typedef struct Type_ {
     }array;
     FieldList structure; 
     struct {
-      int paranum;
       FieldList parameters;
       Type funcType;
-      //int paranum;
+      int paranum;
     }function;
   }u;
 }Type_;
@@ -69,7 +69,9 @@ typedef struct HashCheck{
 
 typedef struct FieldList_ {
   char* name;
+  int lineno;
   Type type;
+  Nbool defined;
   FieldList tail;
   Hash hashflag;
 }FieldList_;  

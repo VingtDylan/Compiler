@@ -61,6 +61,13 @@ void debugShowSymbol(){
       printf(CYAN"hashTable->id:%d: SymbolName:%s Kind:%d\n"NONE,i,hashTable[i]->name,hashTable[i]->type->kind);
 }
 
+void validateTable(){
+  for(int i=0;i<MAX_HASH_SIZE;i++)
+    if(hashTable[i]!=NULL&&hashTable[i]->defined!=defined&&hashTable[i]->type->kind==FUNCTION)
+      printf(CYAN"Error type 18 at Line %d: Undefined function \"%s\".\n"NONE,hashTable[i]->lineno,hashTable[i]->name);
+      
+}
+
 FieldList indexSymbol(char *name,bool isFunc){
   if(name==NULL)
      return NULL;
@@ -183,7 +190,7 @@ Type Specifier(TreeNode *root){
         TreeNode* DecList=Def->child[1];
         while(DecList->child_num==3){
           /*Dec COMMA DecList*/
-          FieldList field=VarDec(DecList->child[0]->child[0],symbolType);
+          FieldList field=VarDec(DecList->child[0]->child[0],symbolType);        
           if(DecList->child[0]->child_num!=1)
              printf(CYAN"Error type 15 at Line %d: Variable %s in struct is initialized.\n"NONE,Def->lineno,field->name);
           FieldList structureField=specifier->u.structure;
@@ -254,6 +261,7 @@ FieldList VarDec(TreeNode *root,Type basictype){
   char *s=VarDecRoot->child[0]->value;
   FieldList field=(FieldList)malloc(sizeof(FieldList_));
   field->name=s;
+  //field->lineno=VarDecRoot->child[0]->lineno;
   if(strcmp(root->child[0]->name,"ID")==0){
     field->type=basictype;
     return field;
@@ -384,13 +392,14 @@ Type Exp(TreeNode* root){
     char make_func[80]="\0";
     FieldList param=(FieldList)malloc(sizeof(FieldList));
     param=definedType->u.function.parameters;
-    for(int i=0;i<definedType->u.function.paranum;i++){
+    /*for(int i=0;i<definedType->u.function.paranum;i++){
       if(i==definedType->u.function.paranum-1)
         strcat(make_func,param->type->u.basic==FLOAT_TYPE?"float":"int");
-      else
+      else{
         strcat(make_func,param->type->u.basic==FLOAT_TYPE?"float,":"int,");
-      param=param->type->u.function.parameters;
-    }
+        param=param->type->u.function.parameters;
+      }
+    }*/
     if(strcmp(root->child[2]->name,"RP")!=0){
       /*ID LP Args RP*/
       TreeNode* args=root->child[2];
