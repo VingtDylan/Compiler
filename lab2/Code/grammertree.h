@@ -8,7 +8,7 @@ extern int yylineno;
 extern char* yytext;
 
 #define MAX_CHILD_NUM 10
-#define MAX_HASH_SIZE 65536
+#define MAX_HASH_SIZE 16384 /*65536*/
 
 #define NONE       "\033[m"          /*Clear*/
 #define RED        "\033[0;32;31m"   /*Bug*/

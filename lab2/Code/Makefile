@@ -22,7 +22,7 @@ INDEX_CMM := $(shell seq 1 $(NUM_OF_CMM))
 INDEX_C := $(shell seq 1 $(NUM_OF_C))
 
 parser: syntax $(filter-out $(LFO),$(OBJS))
-	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly
+	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly -g
 
 syntax: lexical syntax-c
 	$(CC) -c $(YFC) -o $(YFO)
@@ -38,7 +38,7 @@ syntax-c: $(YFILE)
 # 定义的一些伪目标
 .PHONY: clean test CMM C all
 test:
-	./parser ../Test/test9.cmm
+	./parser ../Test/test19.cmm
 
 CMM:  
 	for n in $(INDEX_CMM);\
