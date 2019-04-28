@@ -8,9 +8,9 @@
 #include "grammertree.h"
 
 void traverseExtDefList(TreeNode *root);
-void traverseCompSt(TreeNode *root,Type funcType);
-void traverseDefList(TreeNode *root);
-void traverseStmt(TreeNode *root,Type funcType);
+void traverseCompSt(TreeNode *root,Type funcType,char* pname);
+void traverseDefList(TreeNode *root,char* pname);
+void traverseStmt(TreeNode *root,Type funcType,char* pname);
 void traverse(TreeNode *root);
 
 #endif

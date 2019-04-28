@@ -36,6 +36,7 @@ void addChild(TreeNode* parent,TreeNode* child,int childIndex){
   parent->child[childIndex-1]=child;
   parent->child_num++;
   parent->lineno=parent->child[0]->lineno;
+  //child->parent=parent;
 }
 
 void printTree(TreeNode *parent,int layer){

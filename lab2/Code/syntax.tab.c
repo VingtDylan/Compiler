@@ -2396,7 +2396,7 @@ int main(int argc,char **argv)
     //printTree(Root,0);
     initHashTable();
     traverse(Root);
-    //validateTable();
+    validateTable();
     //debugShowSymbol();
   }
   else

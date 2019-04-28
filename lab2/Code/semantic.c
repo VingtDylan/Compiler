@@ -62,10 +62,13 @@ void debugShowSymbol(){
 }
 
 void validateTable(){
-  for(int i=0;i<MAX_HASH_SIZE;i++)
-    if(hashTable[i]!=NULL&&hashTable[i]->defined!=defined&&hashTable[i]->type->kind==FUNCTION)
+  for(int i=0;i<MAX_HASH_SIZE;i++){
+    if(hashTable[i]!=NULL&&hashTable[i]->defined==undefined&&hashTable[i]->type->kind==FUNCTION){
       printf(CYAN"Error type 18 at Line %d: Undefined function \"%s\".\n"NONE,hashTable[i]->lineno,hashTable[i]->name);
-      
+    }/*else if(hashTable[i]!=NULL&&hashTable[i]->parent!=NULL){
+        printf(GREEN"%s:%s\n"NONE,hashTable[i]->name,hashTable[i]->parent); 
+    }*/
+  }
 }
 
 FieldList indexSymbol(char *name,bool isFunc){
@@ -154,7 +157,7 @@ bool TypeEqual(Type type1,Type type2){
   }
 }
 
-Type Specifier(TreeNode *root){
+Type Specifier(TreeNode *root,char *pname){
   Type specifier=(Type)malloc(sizeof(Type_));
   if(strcmp(root->child[0]->name,"TYPE")==0){
     /*TYPE*/
@@ -186,11 +189,11 @@ Type Specifier(TreeNode *root){
       while(DefList!=NULL){
         /*Def DefList*/
         TreeNode *Def=DefList->child[0];
-        Type symbolType=Specifier(Def->child[0]);
+        Type symbolType=Specifier(Def->child[0],pname);
         TreeNode* DecList=Def->child[1];
         while(DecList->child_num==3){
           /*Dec COMMA DecList*/
-          FieldList field=VarDec(DecList->child[0]->child[0],symbolType);        
+          FieldList field=VarDec(DecList->child[0]->child[0],symbolType,pname);        
           if(DecList->child[0]->child_num!=1)
              printf(CYAN"Error type 15 at Line %d: Variable %s in struct is initialized.\n"NONE,Def->lineno,field->name);
           FieldList structureField=specifier->u.structure;
@@ -212,7 +215,7 @@ Type Specifier(TreeNode *root){
           }
           DecList=DecList->child[2];
         }
-        FieldList field=VarDec(DecList->child[0]->child[0],symbolType);
+        FieldList field=VarDec(DecList->child[0]->child[0],symbolType,pname);
         if(DecList->child[0]->child_num!=1)
           printf(CYAN"Error type 15 at Line %d: Variable \"%s\" in struct is initialized.\n"NONE,Def->lineno,field->name);
             FieldList structureField=specifier->u.structure;
@@ -251,7 +254,7 @@ Type Specifier(TreeNode *root){
 }
 
 
-FieldList VarDec(TreeNode *root,Type basictype){
+FieldList VarDec(TreeNode *root,Type basictype,char *pname){
   TreeNode *VarDecRoot=root;
   int i=0;
   while(strcmp(VarDecRoot->child[0]->name,"ID")!=0){
@@ -261,6 +264,7 @@ FieldList VarDec(TreeNode *root,Type basictype){
   char *s=VarDecRoot->child[0]->value;
   FieldList field=(FieldList)malloc(sizeof(FieldList_));
   field->name=s;
+  strcat(field->parent,pname);
   //field->lineno=VarDecRoot->child[0]->lineno;
   if(strcmp(root->child[0]->name,"ID")==0){
     field->type=basictype;
@@ -390,7 +394,7 @@ Type Exp(TreeNode* root){
     type->u.function.parameters=NULL;
     char string_func[80]="\0";
     char make_func[80]="\0";
-    FieldList param=(FieldList)malloc(sizeof(FieldList));
+    FieldList param=(FieldList)malloc(sizeof(FieldList_));
     param=definedType->u.function.parameters;
     /*for(int i=0;i<definedType->u.function.paranum;i++){
       if(i==definedType->u.function.paranum-1)
@@ -420,7 +424,7 @@ Type Exp(TreeNode* root){
       Type expType=Exp(args->child[0]);
       FieldList argsField=(FieldList)malloc(sizeof(FieldList_));
       argsField->name="no";
-      argsField->type=expType;
+      argsField->type=expType; 
       type->u.function.paranum++;
       argsField->tail=type->u.function.parameters;
       type->u.function.parameters=argsField;

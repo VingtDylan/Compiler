@@ -73,6 +73,7 @@ typedef struct FieldList_ {
   Type type;
   Nbool defined;
   FieldList tail;
+  char parent[32];
   Hash hashflag;
 }FieldList_;  
 

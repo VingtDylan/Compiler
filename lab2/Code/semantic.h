@@ -14,8 +14,8 @@ int insertSymbol(FieldList f);
 bool TypeEqual(Type type1,Type type2);
 unsigned int hash_pjw(char *name);
 
-Type Specifier(TreeNode *root);
-FieldList VarDec(TreeNode *root,Type funcType);
+Type Specifier(TreeNode *root,char* pname);
+FieldList VarDec(TreeNode *root,Type funcType,char* pname);
 Type Exp(TreeNode *root);
 FieldList indexSymbol(char *name,bool isFunc); 
 
