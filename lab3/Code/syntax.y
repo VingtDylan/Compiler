@@ -6,6 +6,7 @@
   #include "grammertree.h"
   #include "semantic.h"
   #include "semanticTraverse.h"
+  #include "intercode.h"
   #include "lex.yy.c"
   int yyerror(const char *s);
   int yylex();
@@ -484,7 +485,13 @@ factor: INT { $$ = $1; }
 %%
 int main(int argc,char **argv)
 {
-  FILE* f=fopen(argv[1],"r");
+  FILE* f;
+  if(argc<2){
+    PrintError("Usage: ./parser test.cmm out.ir.\n");
+    return 1;
+  }else{
+   f=fopen(argv[1],"r");
+  }
   if(!f){ 
     perror(argv[1]);
     return 1;
@@ -497,8 +504,16 @@ int main(int argc,char **argv)
     //No tree will be printed;
     //printTree(Root,0);
     initHashTable();
+    initIRList();
     traverse(Root);
     validateTable();
+    //debugShowAllSymbol();
+    if(argc==2){
+      genCode("stdout",true);
+    }else{ 
+      genCode(argv[2],false);
+    }
+    //genCode(argv[2]);
     //debugShowSymbol();
   }
   else

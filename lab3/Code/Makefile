@@ -22,7 +22,7 @@ INDEX_CMM := $(shell seq 1 $(NUM_OF_CMM))
 INDEX_C := $(shell seq 1 $(NUM_OF_C))
 
 parser: syntax $(filter-out $(LFO),$(OBJS))
-	$(CC) -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly -g
+	$(CC) -g -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly 
 
 syntax: lexical syntax-c
 	$(CC) -c $(YFC) -o $(YFO)
@@ -36,27 +36,14 @@ syntax-c: $(YFILE)
 -include $(patsubst %.o, %.d, $(OBJS))
 
 # 定义的一些伪目标
-.PHONY: clean test CMM C all
+.PHONY: clean test run
 test:
-	./parser ../Test/test4.cmm
+	ulimit -c 1024
+	./parser ../Test/test3.cmm ../Test/out3.ir
 
-CMM:  
-	for n in $(INDEX_CMM);\
-	do\
-		echo "Output of test$$n.cmm";\
-		./parser ../Test/test$$n.cmm;\
-	done
-
-C:
-	for n in $(INDEX_C);\
-	do	./parser ../Test/test$$n.c;\
-	done
-
-all: 	
-	for case in $(shell find ../Test/*);\
-		do	./parser $$case;\
-		done
-
+run:
+	ulimit -c 1024
+	./parser ../Test/test2.cmm
 clean:
 	rm -f parser lex.yy.c syntax.tab.c syntax.tab.h syntax.output
 	rm -f $(OBJS) $(OBJS:.o=.d)

@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include "semantic.h"
 #include "grammertree.h"
+#include "intercode.h"
+
+Type Condition(TreeNode *root,Operand L1,Operand L2);
 
 void traverseExtDefList(TreeNode *root);
 void traverseCompSt(TreeNode *root,Type funcType,char* pname);

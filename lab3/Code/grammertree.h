@@ -23,18 +23,74 @@ extern char* yytext;
 #define GRAY       "\033[1;31;40m"   /*Node_Program*/
 #define WHITE      "\033[1;37m"
 
-typedef enum { false,true } bool;
-typedef enum { Node_ID,Node_Data,Node_Sign,Node_Op,Node_Logic,Node_Fun,Node_Program } Node_Type;
-typedef enum { green,blue,cyan,yellow,l_cyan,l_purple,d_gray }Node_Color;
-typedef enum { INT_TYPE, FLOAT_TYPE, DOUBLE_TYPE} DATA;
-typedef enum { BASIC, ARRAY, STRUCTURE, FUNCTION} Kind;
-typedef enum { wander,extra,arranged} Hashflag;
-typedef enum { undefined,unuseparam,defined} Nbool;
+typedef enum { 
+  false,
+  true 
+} bool;
+
+typedef enum { 
+  Node_ID,
+  Node_Data,
+  Node_Sign,
+  Node_Op,
+  Node_Logic,
+  Node_Fun,
+  Node_Program 
+} Node_Type;
+
+typedef enum { 
+  green,
+  blue,
+  cyan,
+  yellow,
+  l_cyan,
+  l_purple,
+  d_gray 
+} Node_Color;
+
+typedef enum { 
+  INT_TYPE, 
+  FLOAT_TYPE, 
+  DOUBLE_TYPE 
+} DATA;
+
+typedef enum { 
+  BASIC, ARRAY, STRUCTURE, FUNCTION 
+} Kind;
+
+typedef enum {
+  LABEL_CODE,
+  GOTO_CODE,
+  IF_GOTO_CODE,
+  ASSIGN_CODE,
+  TEMP_VAR_OP,/**/
+  PLUS_CODE,MINUS_CODE,MUL_CODE,DIV_CODE,
+  READ_CODE,WRITE_CODE,
+  FUNCTION_CODE,CALL_CODE,ARG_CODE,PARAMETER_CODE,RETURN_CODE
+} CODE_KIND;
+
+typedef enum {
+  LABEL_OP, 
+  VARIABLE_OP,
+  CONSTANT_OP,
+  FUNCTION_OP,
+  DEBUG_OP 
+} OP_KIND;
+
+typedef enum { 
+  wander,extra,arranged 
+} Hashflag;
+
+typedef enum { 
+  undefined,unuseparam,defined 
+} Nbool;
 
 typedef struct Type_* Type;
 typedef struct FieldList_* FieldList;
+typedef struct Operand_* Operand;
+typedef struct InterCode_* InterCode;
 
-typedef struct Node{
+typedef struct Node {
   int lineno;
   char name[32];
   char value[32];
@@ -62,7 +118,7 @@ typedef struct Type_ {
   }u;
 }Type_;
 
-typedef struct HashCheck{
+typedef struct HashCheck {
   Hashflag flag;
   int hashed;
 }Hash;
@@ -77,7 +133,53 @@ typedef struct FieldList_ {
   Hash hashflag;
 }FieldList_;  
 
+typedef struct Operand_ {
+  OP_KIND kind;
+  union{
+    int tvar_no;
+    int label_no;
+    char value[32];
+    Operand name;
+  }u;
+  struct Operand_ *prevArgs;
+  struct Operand_ *nextArgs;
+}Operand_;
+
+typedef struct InterCode_ {
+  CODE_KIND kind;
+  union{
+    struct {
+      Operand op;
+    }single;
+    struct { 
+      Operand right,left; 
+    }assignOp;
+    struct { 
+      Operand result,op1,op2;
+    }tripleOp;
+    struct {
+      Operand op1;
+      Operand op2;
+      Operand label;
+      char relop[32];
+    }ifgotoOp;
+    struct {
+      Operand op;
+      int size;
+    }decOp;
+  }u;
+}InterCode_;
+
+#define MAX_IR_SIZE 10
+
 FieldList hashTable[MAX_HASH_SIZE];
+InterCode *IRList;
+
+int IRlength;
+int IRCapacity;
+int LabelCounter;
+int TempVarCounter;
+int VarCounter;
 
 void PrintError(const char *s);
 void PrintHint(const char *s);
