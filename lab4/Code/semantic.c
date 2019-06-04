@@ -5,6 +5,26 @@
 
 extern FieldList hashTable[MAX_HASH_SIZE];
 extern InterCode *IRList;
+char *CODE_KIND_STR[19]={
+  [GOTO_CODE]="GOTO_CODE",
+  [IF_GOTO_CODE]="IF_GOTO_CODE",
+  [ASSIGN_CODE]="ASSIGN_CODE",
+  [PLUS_CODE]="PLUS_CODE",
+  [MINUS_CODE]="MINUS_CODE",
+  [MUL_CODE]="MUL_CODE",
+  [DIV_CODE]"DIV_CODE",
+  [READ_CODE]="READ_CODE",
+  [WRITE_CODE]="WRITE_CODE",
+  [FUNCTION_CODE]="FUNCTION_CODE",
+  [CALL_CODE]="CALL_CODE",
+  [ARG_CODE]="ARG_CODE",
+  [PARAMETER_CODE]="PARAMETER_CODE",
+  [RETURN_CODE]="RETURN_CODE",
+  [GET_ADDR_CODE]="GET_ADDR_CODE",
+  [GET_VALUE_CODE]="GET_VALUE_CODE",
+  [DEC_CODE]="DEC_CODE",
+  [ADDRASSIGN_CODE]="ADDRASSIGN_CODE"
+};
 
 unsigned int hash_pjw(char *name){
   unsigned int val = 0, i;
@@ -138,26 +158,6 @@ void validateTable(){
 }
 
 void debugShowAllSymbol(){
-  static char *CODE_KIND_STR[19]={
-    [GOTO_CODE]="GOTO_CODE",
-    [IF_GOTO_CODE]="IF_GOTO_CODE",
-    [ASSIGN_CODE]="ASSIGN_CODE",
-    [PLUS_CODE]="PLUS_CODE",
-    [MINUS_CODE]="MINUS_CODE",
-    [MUL_CODE]="MUL_CODE",
-    [DIV_CODE]"DIV_CODE",
-    [READ_CODE]="READ_CODE",
-    [WRITE_CODE]="WRITE_CODE",
-    [FUNCTION_CODE]="FUNCTION_CODE",
-    [CALL_CODE]="CALL_CODE",
-    [ARG_CODE]="ARG_CODE",
-    [PARAMETER_CODE]="PARAMETER_CODE",
-    [RETURN_CODE]="RETURN_CODE",
-    [GET_ADDR_CODE]="GET_ADDR_CODE",
-    [GET_VALUE_CODE]="GET_VALUE_CODE",
-    [DEC_CODE]="DEC_CODE",
-    [ADDRASSIGN_CODE]="ADDRASSIGN_CODE"
-  };
   InterCode ir;
   for(int i=0;i<IRlength;i++){
     ir=IRList[i];

@@ -14,13 +14,6 @@ YFC = $(shell find ./ -name "*.y" | sed s/[^/]*\\.y/syntax.tab.c/)
 LFO = $(LFC:.c=.o)
 YFO = $(YFC:.c=.o)
 
-CMM_SOURCES := $(wildcard ../Test/*.cmm)
-C_SOURCES := $(wildcard ../Test/*.c)
-NUM_OF_CMM := $(words $(CMM_SOURCES))
-NUM_OF_C := $(words $(C_SOURCES))
-INDEX_CMM := $(shell seq 1 $(NUM_OF_CMM))
-INDEX_C := $(shell seq 1 $(NUM_OF_C))
-
 parser: syntax $(filter-out $(LFO),$(OBJS))
 	$(CC) -g -o parser $(filter-out $(LFO),$(OBJS)) -lfl -ly 
 
@@ -39,11 +32,11 @@ syntax-c: $(YFILE)
 .PHONY: clean test run
 test:
 	ulimit -c 1024
-	./parser ../Test/test4.cmm ../Test/out4.ir
+	./parser ../Test/test1.cmm ../Test/out1.s
 
 run:
 	ulimit -c 1024
-	./parser ../Test/test4.cmm
+	./parser ../Test/test2.cmm
 clean:
 	rm -f parser lex.yy.c syntax.tab.c syntax.tab.h syntax.output
 	rm -f $(OBJS) $(OBJS:.o=.d)

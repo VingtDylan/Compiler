@@ -399,12 +399,12 @@ void traverseStmt(TreeNode *root,Type funcType,char* pname){
     if(strcmp(root->child[1]->child[0]->name,"INT")==0){
       returnOp->kind=CONSTANT_OP;
       strcpy(returnOp->u.value,root->child[1]->child[0]->value);
-      returnType=Exp(Stmt->child[1],returnOp);/*Bug*/
+      //returnType=Exp(Stmt->child[1],returnOp);/*Bug*/
     }else{
       returnType=Exp(Stmt->child[1],returnOp);  
     }
-    if(TypeEqual(funcType,returnType)==0)
-      printf(CYAN"Error type 8 at Line %d: Type mismatched for return.\n"NONE,Stmt->lineno);
+    //if(TypeEqual(funcType,returnType)==0)
+      //printf(CYAN"Error type 8 at Line %d: Type mismatched for return.\n"NONE,Stmt->lineno);
     InterCode returnIR=(InterCode)malloc(sizeof(InterCode_));
     returnIR->kind=RETURN_CODE;
     returnIR->u.single.op=returnOp;

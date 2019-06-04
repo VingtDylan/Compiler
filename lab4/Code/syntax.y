@@ -7,6 +7,7 @@
   #include "semantic.h"
   #include "semanticTraverse.h"
   #include "intercode.h"
+  #include "MIPS32.h"
   #include "lex.yy.c"
   int yyerror(const char *s);
   int yylex();
@@ -509,9 +510,11 @@ int main(int argc,char **argv)
     validateTable();
     //debugShowAllSymbol();
     if(argc==2){
-      genCode("stdout",true);
+      genMIPS32Code("stdout",true);
+      //genCode("stdout",true);
     }else{ 
-      genCode(argv[2],false);
+      genMIPS32Code(argv[2],false);
+      //genCode(argv[2],false);
     }
     //genCode(argv[2]);
     //debugShowSymbol();

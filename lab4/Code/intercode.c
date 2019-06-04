@@ -45,7 +45,7 @@ void genCode(char *filename,bool colored){
   if(!fp){
     PrintError("Error in genCode's fopen");
     return;
-  }
+  }  
   for(int i=0;i<IRlength;i++){
     InterCode ir=IRList[i];
     if(ir==NULL)
